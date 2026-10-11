@@ -15,8 +15,8 @@ app.post("/analyzeWord", async (req, res) => {
       return res.status(400).json({ error: "Please provide a word." });
     }
 
-    // استخدام النموذج المعتمد والمستقر نهائياً لتجنب أخطاء 404 و 503
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    // استخدام النموذج الذي طلبته واقترحته جوجل رسمياً
+    const model = genAI.getGenerativeModel({ model: "gemini-3.8-flash" });
     
     const prompt = `Analyze the English word "${word}" for language learners. Return ONLY a strict JSON object with NO markdown formatting, NO backticks, and NO extra text, using this exact structure:
 {
