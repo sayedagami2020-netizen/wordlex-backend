@@ -15,12 +15,30 @@ app.post("/analyzeWord", async (req, res) => {
       return res.status(400).json({ error: "الرجاء إرسال الكلمة المطلوبة" });
     }
 
-    // استخدام النموذج القياسي المستقر لتجنب خطأ 500
     const model = genAI.getGenerativeModel({ model: "gemini-3.8-flash" });
-    const result = await model.generateContent(`Analyze the English word "${word}" for language learners. Provide a clear response containing: Arabic meaning, Word Family, morphological forms, and 3 contextual examples.`);
-    const response = await result.response;
+    
+    const prompt = `Analyze the English word "${word}" for language learners and return ONLY a strict JSON object with no markdown formatting or extra text, using this exact structure:
+{
+  "word": "${word}",
+  "part_of_speech": "verb/noun/adjective",
+  "definitions": [
+    {
+      "sense": "Primary use or meaning",
+      "meaning": "Clear definition including Arabic translation",
+      "example": "A clear contextual example sentence using the word."
+    }
+  ],
+  "synonyms": ["synonym1", "synonym2"],
+  "antonyms": ["antonym1"]
+}`;
 
-    res.json({ success: true, analysis: response.text() });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    
+    // تنظيف النص لضمان إرسال JSON نقي وسليم للتطبيق
+    let rawText = response.text().replace(/```json/g, "").replace(/```/g, "").trim();
+
+    res.json({ success: true, analysis: rawText });
   } catch (error) {
     console.error("Gemini API Error:", error);
     res.status(500).json({ error: "حدث خطأ أثناء الاتصال بالذكاء الاصطناعي: " + error.message });
