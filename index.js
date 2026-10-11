@@ -15,27 +15,44 @@ app.post("/analyzeWord", async (req, res) => {
       return res.status(400).json({ error: "Please provide a word." });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3.8-flash" });
+    // استخدام النموذج المستقر والسريع لتجنب الضغط العالي وأخطاء 503
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
-    // Prompt مختصر وسريع لضمان الاستجابة الفورية بدون Timeout
-    const prompt = `Analyze "${word}". Return ONLY valid JSON (no markdown) with this format:
+    const prompt = `Analyze the English word "${word}" for language learners. Return ONLY a strict JSON object with NO markdown formatting, NO backticks, and NO extra text, using this exact structure:
 {
   "word": "${word}",
   "cefr_level": "B2",
   "part_of_speech": "verb",
   "phonetic": "/${word}/",
-  "definitions": [{"sense": "Main", "meaning": "Definition here", "example": "Example here."}],
-  "synonyms": ["syn1"],
-  "antonyms": ["ant1"]
+  "definitions": [
+    {
+      "sense": "Primary use",
+      "meaning": "Detailed English definition of the word.",
+      "example": "A clear, natural contextual example sentence using the word."
+    }
+  ],
+  "synonyms": ["synonym1", "synonym2"],
+  "antonyms": ["antonym1"],
+  "forms": {
+    "base": "${word}",
+    "past_simple": "...",
+    "past_participle": "...",
+    "present_participle": "...",
+    "third_person": "..."
+  }
 }`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
     
-    let rawText = response.text().replace(/```json/g, "").replace(/```/g, "").trim();
+    let rawText = response.text()
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
     res.json({ success: true, analysis: rawText });
   } catch (error) {
-    console.error("Error:", error);
+    console.error("AI Error:", error);
     res.status(500).json({ error: "AI Error: " + error.message });
   }
 });
