@@ -12,36 +12,49 @@ app.post("/analyzeWord", async (req, res) => {
   try {
     const { word } = req.body;
     if (!word) {
-      return res.status(400).json({ error: "الرجاء إرسال الكلمة المطلوبة" });
+      return res.status(400).json({ error: "Please provide a word to analyze." });
     }
 
     const model = genAI.getGenerativeModel({ model: "gemini-3.8-flash" });
     
-    const prompt = `Analyze the English word "${word}" for language learners and return ONLY a strict JSON object with no markdown formatting or extra text, using this exact structure:
+    const prompt = `You are an expert lexicographer and English language teacher. Analyze the English word "${word}" for language learners.
+Return ONLY a strict JSON object with NO markdown formatting, NO backticks, and NO extra text, using this exact structure:
 {
   "word": "${word}",
-  "part_of_speech": "verb/noun/adjective",
+  "cefr_level": "B2",
+  "part_of_speech": "verb",
+  "phonetic": "/${word}/",
   "definitions": [
     {
-      "sense": "Primary use or meaning",
-      "meaning": "Clear definition including Arabic translation",
-      "example": "A clear contextual example sentence using the word."
+      "sense": "Primary use",
+      "meaning": "Detailed English definition of the word.",
+      "example": "A clear, natural contextual example sentence using the word."
     }
   ],
   "synonyms": ["synonym1", "synonym2"],
-  "antonyms": ["antonym1"]
+  "antonyms": ["antonym1"],
+  "forms": {
+    "base": "${word}",
+    "past_simple": "...",
+    "past_participle": "...",
+    "present_participle": "...",
+    "third_person": "..."
+  }
 }`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
     
-    // تنظيف النص لضمان إرسال JSON نقي وسليم للتطبيق
-    let rawText = response.text().replace(/```json/g, "").replace(/```/g, "").trim();
+    // تنظيف تام لأي تنسيق زائد لضمان استقبال JSON نقي وصحيح 100% في التطبيق
+    let rawText = response.text()
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
 
     res.json({ success: true, analysis: rawText });
   } catch (error) {
     console.error("Gemini API Error:", error);
-    res.status(500).json({ error: "حدث خطأ أثناء الاتصال بالذكاء الاصطناعي: " + error.message });
+    res.status(500).json({ error: "AI Connection Error: " + error.message });
   }
 });
 
