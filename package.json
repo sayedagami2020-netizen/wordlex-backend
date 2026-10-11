@@ -1,0 +1,17 @@
+{
+  "name": "wordlex-backend",
+  "description": "Backend Proxy for WordLex",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  },
+  "private": true
+}
