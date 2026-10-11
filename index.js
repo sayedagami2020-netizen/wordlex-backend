@@ -6,8 +6,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// ضع مفتاح الـ Gemini API الخاص بك هنا
-const genAI = new GoogleGenerativeAI("ضع_مفتاح_الـ_API_هنا");
+// استدعاء المفتاح بأمان من إعدادات المنصة
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 app.post("/analyzeWord", async (req, res) => {
   try {
