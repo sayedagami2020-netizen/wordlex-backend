@@ -16,7 +16,7 @@ app.post("/analyzeWord", async (req, res) => {
     }
 
     // استخدام النموذج القياسي المستقر لتجنب خطأ 500
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const result = await model.generateContent(`Analyze the English word "${word}" for language learners. Provide a clear response containing: Arabic meaning, Word Family, morphological forms, and 3 contextual examples.`);
     const response = await result.response;
 
